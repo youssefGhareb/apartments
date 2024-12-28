@@ -29,6 +29,7 @@ export const getApartmentById = async (req: Request, res: Response) => {
 }
 
 export const createApartment = async (req: Request, res: Response, next: NextFunction) => {
+    console.log(req.body);
     await dataSource.manager.insert(Apartment, req.body)
     .then((newId) => {
         res.json({

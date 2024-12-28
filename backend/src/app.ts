@@ -1,10 +1,12 @@
 import express from "express";
+import cors from "cors";
 import "reflect-metadata";
 import apartmentRoutes from "./routes/apartmentRoutes";
 import dataSource from "./app-data-source";
 
 const app = express();
 app.use(express.json());
+app.use(cors())
 
 // Set up routes
 app.use("/api/apartments", apartmentRoutes);
