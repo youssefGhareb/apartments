@@ -1,42 +1,63 @@
-import dataSource from "../app-data-source";
-import { Apartment } from "../entities/Apartement";
-import { NextFunction, Request, Response } from "express";
+import dataSource from "../app-data-source"; // Importing the TypeORM data source instance to interact with the database.
+
+import { Apartment } from "../entities/Apartement"; // Importing the `Apartment` entity, which represents the structure of the `apartment` table in the database.
+
+import {Request, Response } from "express"; // Importing types for Express request, and response for type safety.
 
 export const getApartments = async (req: Request, res: Response) => {
+     // Controller function to fetch all apartments from the database.
+
     try {
         const apartments: Apartment[] = await dataSource.manager.find(Apartment);
+        // Using the TypeORM manager to retrieve all rows from the `Apartment` table
+
         res.json(apartments);
+        // Sending the list of apartments as a JSON response.
     } catch (error) {
         res.status(500).json({ message: "failed to fetch apartments" });
+        // Sending a 500 error response if something goes wrong.
     }
 }
 
 export const getApartmentById = async (req: Request, res: Response) => {
+     // Controller function to fetch a single apartment by its ID.
     try {
         const { id } = req.params;
+        // Extracting the `id` parameter from the request URL.
+
         const apartment: Apartment | null = await dataSource.manager.findOneBy(Apartment, { id: parseInt(id) });
+        // Using TypeORM's `findOneBy` method to fetch the apartment with the specified ID.
+        // `parseInt` converts the `id` from a string to a number.
 
         if (!apartment) {
             res.status(404).json({ message: "Apartment not found" });
+            // If no apartment is found, return a 404 response with an appropriate message.
             return;
         }
 
         res.json(apartment);
+        // Sending the apartment details as a JSON response.
 
     } catch (error) {
         res.status(500).json({ message: "failed to fetch apartment details" });
+        // Sending a 500 error response if an error occurs.
     }
 }
 
-export const createApartment = async (req: Request, res: Response, next: NextFunction) => {
+export const createApartment = async (req: Request, res: Response) => {
+    // Controller function to create a new apartment.
+    
     console.log(req.body);
-    await dataSource.manager.insert(Apartment, req.body)
+    await dataSource.manager.insert(Apartment, req.body) // Using TypeORM's `insert` method to add a new row to the `Apartment` table.
+                                                         // The data is taken directly from the request body (`req.body`).
     .then((newId) => {
-        res.json({
+        res.json({ // On successful insertion, return a success message along with the newly created apartment's ID.
             message: "Successfully created apartment with ID : " + newId.identifiers[0].id,
+            
         });
     })
-    .catch((error) => {
+    .catch((error) => { 
         res.status(500).json({ message: "failed To create apartment", error: error });
+        // If an error occurs, send a 500 error response with an appropriate message.
     });
 }
