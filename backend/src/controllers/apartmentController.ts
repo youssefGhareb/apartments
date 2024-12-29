@@ -7,14 +7,15 @@ import { Request, Response } from "express"; // Importing types for Express requ
 export const getApartments = async (req: Request, res: Response) => {
     // Controller function to fetch all apartments from the database.
 
-    const { name, unitNumber, project } = req.query;
+    const { name, unitNumber, project } = req.query; // Destructuring query parameters for filtering apartments.
 
-    const where: any = {};
+    const where: any = {}; // Object to store dynamic filtering conditions.
 
     const queryBuilder = dataSource.manager
-        .getRepository(Apartment)
-        .createQueryBuilder('apartment');
+        .getRepository(Apartment) // Accessing the `Apartment` repository through TypeORM's manager.
+        .createQueryBuilder('apartment'); // Creating a query builder for the `apartment` table.
 
+    // Adding conditions for filtering if parameters are provided in the request query.
     if (name) {
         queryBuilder.andWhere('apartment.name LIKE :name', { name: `%${name}%` });
     }
@@ -29,7 +30,7 @@ export const getApartments = async (req: Request, res: Response) => {
 
     try {
         const apartments: Apartment[] = await queryBuilder.getMany();
-        // Using the TypeORM manager to retrieve all rows from the `Apartment` table
+        // Fetching apartments from the database based on the query.
 
         res.json(apartments);
         // Sending the list of apartments as a JSON response.

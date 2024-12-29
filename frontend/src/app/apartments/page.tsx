@@ -8,15 +8,15 @@ import Link from "next/link";
 export default function Apartments() {
   // State hook to store the fetched apartments data.
   const [apartments, setApartments] = useState<Apartment[]>([]);
-  const [name, setName] = useState("");
-  const [unitNumber, setUnitNumber] = useState("");
-  const [project, setProject] = useState("");
+  const [name, setName] = useState("");  // State for filtering by apartment name
+  const [unitNumber, setUnitNumber] = useState(""); // State for filtering by unit number
+  const [project, setProject] = useState(""); // State for filtering by project
 
   const fetchApartments = async () => {
     try {
       const response = await apiClient.get( // Sending GET request to fetch apartments data from the backend API.
-        "/apartments", {
-        params: {
+        "/apartments", { 
+        params: { // Passing filter parameters in the API request
           name,
           unitNumber,
           project,
@@ -32,15 +32,17 @@ export default function Apartments() {
   };
 
   useEffect(() => {
-    // Effect hook to fetch apartments when the component is mounted.
+    // useEffect hook to fetch apartments when the component is mounted.
+
     fetchApartments(); // Triggering the fetch request inside useEffect
 
-  }, [name, unitNumber, project]); // Empty dependency array ensures this effect runs only once when the component mounts.
+  }, [name, unitNumber, project]); // Dependancy array ensures refetching whenever filtering inpout changes
 
   return (
     <div className="my-auto">
       <div className="flex my-10">
         <h1 className="text-3xl pl-6 w-1/5 py-3">Apartments</h1>
+        
         {/* Search and filter inputs */}
         <input
           type="text"
@@ -63,6 +65,8 @@ export default function Apartments() {
           value={project}
           onChange={(e) => setProject(e.target.value)}
         />
+
+        {/* Link to navigate to the Add Apartment page */}
         <Link href="/apartments/add" className="w-1/5">
           <button className="p-3 bg-gray-600 hover:bg-gray-800 border border-slate-700 rounded text-white">Add Apartment</button>
         </Link>
