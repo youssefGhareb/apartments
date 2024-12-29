@@ -2,7 +2,7 @@ import "reflect-metadata";
 // Enables TypeScript decorators by importing metadata reflection support, required for TypeORM entities.
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
-@Entity()
+@Entity("apartment")
 // Marks the `Apartment` class as a database entity. 
 // This associates the class with a table named `apartment` in the database.
 export class Apartment {

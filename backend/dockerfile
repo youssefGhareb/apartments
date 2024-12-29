@@ -13,12 +13,6 @@ RUN npm install
 # Copy the rest of the application files
 COPY . .
 
-# Copy the wait-for-it.sh script into the container
-COPY wait-for-it.sh /wait-for-it.sh
-
-# Make the script executable
-RUN chmod +x /wait-for-it.sh
-
 # Compile typescript to /dist
 RUN npm run build 
 
@@ -26,4 +20,4 @@ RUN npm run build
 EXPOSE 3000
 
 # Start the app: Wait for database, run migrations, then start the app
-CMD /wait-for-it.sh postgres-db:5432 -- npm run db:migrate && npm run dev
+CMD npm run dev
