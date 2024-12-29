@@ -2,13 +2,33 @@ import dataSource from "../app-data-source"; // Importing the TypeORM data sourc
 
 import { Apartment } from "../entities/Apartement"; // Importing the `Apartment` entity, which represents the structure of the `apartment` table in the database.
 
-import {Request, Response } from "express"; // Importing types for Express request, and response for type safety.
+import { Request, Response } from "express"; // Importing types for Express request, and response for type safety.
 
 export const getApartments = async (req: Request, res: Response) => {
-     // Controller function to fetch all apartments from the database.
+    // Controller function to fetch all apartments from the database.
+
+    const { name, unitNumber, project } = req.query;
+
+    const where: any = {};
+
+    const queryBuilder = dataSource.manager
+        .getRepository(Apartment)
+        .createQueryBuilder('apartment');
+
+    if (name) {
+        queryBuilder.andWhere('apartment.name LIKE :name', { name: `%${name}%` });
+    }
+
+    if (unitNumber) {
+        queryBuilder.andWhere('apartment.unitNumber LIKE :unitNumber', { unitNumber: `%${unitNumber}%` });
+    }
+
+    if (project) {
+        queryBuilder.andWhere('apartment.project LIKE :project', { project: `%${project}%` });
+    }
 
     try {
-        const apartments: Apartment[] = await dataSource.manager.find(Apartment);
+        const apartments: Apartment[] = await queryBuilder.getMany();
         // Using the TypeORM manager to retrieve all rows from the `Apartment` table
 
         res.json(apartments);
@@ -20,7 +40,7 @@ export const getApartments = async (req: Request, res: Response) => {
 }
 
 export const getApartmentById = async (req: Request, res: Response) => {
-     // Controller function to fetch a single apartment by its ID.
+    // Controller function to fetch a single apartment by its ID.
     try {
         const { id } = req.params;
         // Extracting the `id` parameter from the request URL.
@@ -46,18 +66,18 @@ export const getApartmentById = async (req: Request, res: Response) => {
 
 export const createApartment = async (req: Request, res: Response) => {
     // Controller function to create a new apartment.
-    
+
     console.log(req.body);
     await dataSource.manager.insert(Apartment, req.body) // Using TypeORM's `insert` method to add a new row to the `Apartment` table.
-                                                         // The data is taken directly from the request body (`req.body`).
-    .then((newId) => {
-        res.json({ // On successful insertion, return a success message along with the newly created apartment's ID.
-            message: "Successfully created apartment with ID : " + newId.identifiers[0].id,
-            
+        // The data is taken directly from the request body (`req.body`).
+        .then((newId) => {
+            res.json({ // On successful insertion, return a success message along with the newly created apartment's ID.
+                message: "Successfully created apartment with ID : " + newId.identifiers[0].id,
+
+            });
+        })
+        .catch((error) => {
+            res.status(500).json({ message: "failed To create apartment", error: error });
+            // If an error occurs, send a 500 error response with an appropriate message.
         });
-    })
-    .catch((error) => { 
-        res.status(500).json({ message: "failed To create apartment", error: error });
-        // If an error occurs, send a 500 error response with an appropriate message.
-    });
 }

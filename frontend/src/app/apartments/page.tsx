@@ -8,32 +8,62 @@ import Link from "next/link";
 export default function Apartments() {
   // State hook to store the fetched apartments data.
   const [apartments, setApartments] = useState<Apartment[]>([]);
+  const [name, setName] = useState("");
+  const [unitNumber, setUnitNumber] = useState("");
+  const [project, setProject] = useState("");
+
+  const fetchApartments = async () => {
+    try {
+      const response = await apiClient.get( // Sending GET request to fetch apartments data from the backend API.
+        "/apartments", {
+        params: {
+          name,
+          unitNumber,
+          project,
+        },
+      }
+      );
+      setApartments(response.data); // Updating the state with the fetched apartments.
+
+    } catch (error) {
+      // Logging any errors that occur during the fetch process.
+      console.error("Error fetching apartments:", error);
+    }
+  };
 
   useEffect(() => {
     // Effect hook to fetch apartments when the component is mounted.
-
-    const fetchApartments = async () => {
-      try {
-        const response = await apiClient.get( // Sending GET request to fetch apartments data from the backend API.
-          "/apartments"
-        );
-        setApartments(response.data); // Updating the state with the fetched apartments.
-
-      } catch (error) {
-        // Logging any errors that occur during the fetch process.
-        console.error("Error fetching apartments:", error);
-      }
-    };
-
     fetchApartments(); // Triggering the fetch request inside useEffect
 
-  }, []); // Empty dependency array ensures this effect runs only once when the component mounts.
+  }, [name, unitNumber, project]); // Empty dependency array ensures this effect runs only once when the component mounts.
 
   return (
     <div className="my-auto">
       <div className="flex my-10">
-        <h1 className="text-3xl pl-6 w-3/4 py-3">Apartments</h1>
-        <Link href="/apartments/add">
+        <h1 className="text-3xl pl-6 w-1/5 py-3">Apartments</h1>
+        {/* Search and filter inputs */}
+        <input
+          type="text"
+          placeholder="Search by unit name"
+          className="w-1/5 border p-3 border-slate-700 mr-2 rounded"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Search by unit number"
+          className="w-1/5 border p-3 border-slate-700 mr-2 rounded"
+          value={unitNumber}
+          onChange={(e) => setUnitNumber(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Search by project"
+          className="w-1/5 border p-3 border-slate-700 mr-10 rounded"
+          value={project}
+          onChange={(e) => setProject(e.target.value)}
+        />
+        <Link href="/apartments/add" className="w-1/5">
           <button className="p-3 bg-gray-600 hover:bg-gray-800 border border-slate-700 rounded text-white">Add Apartment</button>
         </Link>
       </div>
