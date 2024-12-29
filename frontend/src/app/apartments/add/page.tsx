@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { useState } from "react";
 
 export default function AddApartmentPage() {
+  // Initialize form data state with default values.
   const [formData, setFormData] = useState<Apartment>({
     id: 0,
     name: "",
@@ -14,29 +15,43 @@ export default function AddApartmentPage() {
     unitNumber: ""
   });
 
+  // Handle change in input fields and update formData state.
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value }); // Update the specific field based on the input name.
   };
 
+  // Handle form submission.
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent the default form submission behavior.
+
     try {
+      // Make a POST request to the backend to create a new apartment.
       const response = await apiClient.post("/apartments", {
         ...formData,
       });
 
       if (response.status == 200) {
+        // If the response status is 200, the apartment was added successfully.
         alert("Apartment added successfully!");
-        setFormData({ name: "", project: "",unitNumber: "", price: 0 }); // Reset form
+
+        // Reset the form fields after successful submission.
+        setFormData({ name: "", project: "", unitNumber: "", price: 0 }); // Reset form
+
       } else {
-        const error = await response.data();
-        alert(`Error: ${error.message}`);
+        // If the response status is not 200, there was an error.
+        const error = await response.data(); // Fetch error details from the response.
+        alert(`Error: ${error.message}`); // Show an alert with the error message.
       }
     } catch (error) {
+
+      // If an error occurs during the API call, log the error and show an error alert.
       console.error("Error adding apartment:", error);
       alert("An error occurred. Please try again.");
+
     } finally {
-        redirect("/apartments");
+      // Redirect to the apartments listing page after form submission.
+      // redirect throws an internal error so can't be placed in try block.
+      redirect("/apartments");
     }
   };
 
@@ -44,6 +59,7 @@ export default function AddApartmentPage() {
     <div className="mt-20">
       <h1 className="text-3xl mb-20">Add New Apartment</h1>
       <form onSubmit={handleSubmit} className="w-1/2 mx-auto">
+       {/* Apartment name input field */}
         <div className="mb-7 flex">
           <label htmlFor="name" className="text-xl my-auto block w-1/4">Name:</label>
           <input
@@ -52,10 +68,12 @@ export default function AddApartmentPage() {
             name="name"
             className="border border-slate-700 rounded p-2 w-3/4"
             value={formData.name}
-            onChange={handleChange}
+            onChange={handleChange} // Call handleChange when the user types in the input.
             required
           />
         </div>
+
+        {/* Apartment project input field */}
         <div className="mb-7 flex">
           <label htmlFor="project" className="text-xl my-auto block w-1/4">Project:</label>
           <input
@@ -68,6 +86,8 @@ export default function AddApartmentPage() {
             required
           />
         </div>
+
+        {/* Apartment unit number input field */}
         <div className="mb-7 flex">
           <label htmlFor="unitNumber" className="text-xl my-auto block w-1/4">Unit Number:</label>
           <input
@@ -80,6 +100,8 @@ export default function AddApartmentPage() {
             required
           />
         </div>
+
+        {/* Apartment price input field */}
         <div className="mb-10 flex">
           <label htmlFor="price" className="text-xl my-auto block w-1/4">Price:</label>
           <input
@@ -92,7 +114,8 @@ export default function AddApartmentPage() {
             required
           />
         </div>
-        
+
+        {/* Submit button */}
         <button type="submit" className="p-3 vorder border-slate-700 bg-gray-600 hover:bg-gray-800 text-white rounded ">Add Apartment</button>
       </form>
     </div>
