@@ -5,8 +5,8 @@ import { InsertAptData1735224498985 } from "./migrations/1735224498985-insertApt
 // Initialize TypeORM connection
 const dataSource = new DataSource({
     type: "postgres",
-    host: "localhost",
-    port: 5433,
+    host: "postgres-db",
+    port: 5432,
     username: "apts-admin",
     password: "FakePwd13#",
     database: "apartments",

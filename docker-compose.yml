@@ -1,7 +1,7 @@
 
 
 services:
-  db: #service name
+  postgres-db: #service name
     image: postgres:15 # image name and version
     container_name: postgres-db # Name of the container
     environment: #database parameters
@@ -12,11 +12,49 @@ services:
       - "5433:5432" # Map container port 5432 to local port 5433, use 5433 since 5432 is probably occupied by local postgres instance
     volumes:
       - db_data:/var/lib/postgresql/data # Persist database data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "apts-admin", "-d", "apartments"]
+      interval: 30s
+      retries: 5
+      start_period: 5s
+      timeout: 10s
     networks:
       - app-network # Ensure networking between services
+  backend:
+    build:
+      context: ./backend # Path to the backend directory (Dockerfile should be in the backend directory)
+    container_name: backend
+    environment:
+      - DATABASE_URL=postgres://apts-admin:FakePwd13#@db:5432/apartments
+    ports:
+      - "3000:3000" # Exposes the backend on port 3000
+    depends_on:
+      postgres-db: # Ensure the database starts first
+        condition: service_healthy
+    networks:
+      - app-network
+    volumes:
+      - ./backend:/usr/src/app # Mount local backend code to the container
+  # Frontend Service (Next.js)
+  frontend:
+    build:
+      context: ./frontend # Path to the frontend directory (Dockerfile should be in the frontend directory)
+    container_name: frontend
+    environment:
+      - BACKEND_BASE_API=http://backend:3000/api # Set the backend URL for the frontend
+    ports:
+      - "3001:3001" # Exposes the frontend on port 3001
+    depends_on:
+      - backend # Ensure the backend starts first
+    networks:
+      - app-network
+    volumes:
+      - ./frontend:/usr/src/app # Mount local frontend code to the container
+    command: ["npm", "run", "dev"] # Start Next.js in development mode
 
 volumes:
   db_data: # Named volume for persistence
   
 networks:
   app-network: # Custom network for services
+    driver: bridge

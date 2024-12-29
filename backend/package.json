@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "db:migarte": "npx typeorm-ts-node-commonjs migration:run -d ./src/app-data-source.ts",
+    "db:migrate": "npx typeorm-ts-node-commonjs migration:run -d ./src/app-data-source.ts",
     "build": "tsc",
     "dev": "nodemon src/app.ts",
     "start": "node dist/app.js"
